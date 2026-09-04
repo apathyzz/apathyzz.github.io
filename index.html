@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Расписание — просмотр</title>
+<title>Расписание — редактор</title>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -133,38 +133,6 @@
     color: #9ca3af;
     pointer-events: none;
   }
-
-  /* Режим просмотра: ничего нельзя изменить */
-  .add, .clear, .delete, .link-delete, .add-link,
-  button[onclick*="deleteRow"], button[onclick*="clearAll"],
-  button[onclick*="addRow"], button[onclick*="addLink"],
-  button[onclick*="removeLink"] {
-    display: none !important;
-  }
-
-  th[contenteditable="true"],
-  td [contenteditable="true"],
-  .th-input,
-  td input,
-  td textarea {
-    pointer-events: none !important;
-    user-select: text;
-    border-color: transparent !important;
-    background: transparent !important;
-  }
-
-  .readonly-badge {
-    display: inline-block;
-    margin-left: 10px;
-    padding: 5px 9px;
-    border-radius: 999px;
-    background: #e5e7eb;
-    color: #374151;
-    font-size: 12px;
-    font-weight: 700;
-    vertical-align: middle;
-  }
-
 </style>
 </head>
 <body>
@@ -175,6 +143,7 @@
     </div>
     <div>
       <button class="clear" onclick="clearAll()">Очистить всё</button>
+      <button class="add" onclick="exportForGithub()">Подготовить для GitHub</button>
       <button class="add" onclick="addRow()">+ Добавить строку</button>
     </div>
   </header>
@@ -197,9 +166,13 @@
 </div>
 
 <script>
+window.EMBEDDED_ROWS = [{"name": "Понедельник", "text": "1. 1/15 Англ. язык ( Препод Єршова Ю.А. )  ПРАКТИКА \n2. 1/15 Высшая матеша ( Препод  Сікіраш Ю.Є. )  ЛЕКЦИЯ\n3. -\n4. -", "url": "https://meet.google.com/tvg-vetr-xdy", "urls": ["https://meet.google.com/tvg-vetr-xdy", "https://us04web.zoom.us/j/8944225620?pwd=K3BudEVIZEJXWFBsMGUxWWZYbUpVQT09"], "time": "1. 8.00-9.45\n    8.50-9.35\n2. 9.50-10.35\n    10.40-11.25"}, {"name": "Вторник ", "text": "1. 1/15 Англ. язык ( Препод  Єршова Ю.А.) ПРАКТИКА\n2. -\n3. 2/15 Вступ до  спеціальності ( Препод Вінковська І.С. ) ЛАБОРАТОРНАЯ \n4. -", "url": "", "urls": ["https://meet.google.com/tvg-vetr-xdy", "https://meet.google.com/yeh-bezk-gbi"], "time": "1. 8.00-9.45\n    8.50-9.45\n3. 11.40-12.25\n    12.30-13.15"}, {"name": "Среда", "text": "1. 1/15 Алгоритмізація та програмування ( Препод Головачова О.В. ) ЛЕКЦИЯ \n2. 1/15 Вступ до спеціальності ( Препод Тимошенко Л.М. ) ЛЕКЦИЯ\n3. 1/15 Высшая матеша ( Препод Сікіраш Ю.Є. ) ПРАКТИКА \n4. 2/15 Історія України та української культури ( Препод Мельник О.В. ) ПРАКТИКА", "urls": ["3780800730 // 4T6Tq2", "https://meet.google.com/kwe-hzwh-wdg", "https://us04web.zoom.us/j/8944225620?pwd=K3 BudEVIZEJXWFBsMGUxWWZYbUpVQT09", "Нема ссылки"], "time": "1. 8.00-9.45\n    8.50-9.35\n2. 9.50-10.35\n    10.40-11.25\n3. 11.40-12.25\n    12.30-13.15\n4. 13.30-14.15\n    14.20-15.05"}, {"name": "Четверг", "text": "У нас пар нет по физре, непонятно по какой ссылке там заходить. Как проблема решиться, либо же добавиться в этот день что то кроме физры - я обновлю инфу ;)", "urls": ["???"], "time": "???"}, {"name": "Пятница", "text": "1. -\n2. 3/15 Основи нормативно-правового заб. кібербезпеки та захисту інформації ( Препод Білоусов О.С. ) ПРАКТИКА \n3. -\n4. 1/15, 2/14 Алгоритмізація та програмування ( Препод Головачова О.В. ) ПРАКТИКА / ЛАБОРАТОРНАЯ\n-note ( 1.15 у нас практика, а 2.15 у нас лабораторная )", "urls": ["https://meet.google.com/uay-ufqt-xpr", "3780800730 // 4T6Tq2"], "time": "2. 9.50-10.35\n    10.40-11.25\n4. 13.30-14.15\n    14.20-15.05"}];
+window.EMBEDDED_SETTINGS = {"pageTitle": "Расписание by denis", "nameHeader": "День недельки ", "textHeader": "Пары ", "urlHeader": "Ссылки на пары", "actionsHeader": "", "timeHeader": "Время "};
+</script>
+<script>
 const KEY = 'simple-links-table-v1';
 const SETTINGS_KEY = 'simple-links-table-settings-v1';
-let rows = JSON.parse(localStorage.getItem(KEY) || 'null');
+let rows = Array.isArray(window.EMBEDDED_ROWS) ? window.EMBEDDED_ROWS : JSON.parse(localStorage.getItem(KEY) || 'null');
 if (!Array.isArray(rows) || rows.length === 0) {
   rows = [
     {name:'', time:'1 пара\n8:00 — 8:45\n8:50 — 9:35', text:'', urls:['']},
@@ -210,7 +183,7 @@ if (!Array.isArray(rows) || rows.length === 0) {
   localStorage.setItem(KEY, JSON.stringify(rows));
 }
 rows = rows.map(r => ({...r, urls: Array.isArray(r.urls) ? r.urls : (r.url ? [r.url] : [''])}));
-let settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || 'null') || {
+let settings = (window.EMBEDDED_SETTINGS && typeof window.EMBEDDED_SETTINGS === 'object') ? window.EMBEDDED_SETTINGS : JSON.parse(localStorage.getItem(SETTINGS_KEY) || 'null') || {
   pageTitle: 'Моя таблица', nameHeader: 'Название', textHeader: 'Текст / заметка',
     timeHeader: 'Время', urlHeader: 'Ссылка', actionsHeader: 'Действия'
 };
@@ -234,7 +207,9 @@ rows.forEach((row, index) => {
 });
 if (timeMigrated) save();
 
-function save() { /* Только просмотр: сохранение отключено */ }
+function save() {
+  localStorage.setItem(KEY, JSON.stringify(rows));
+}
 
 function saveSettings() {
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
@@ -417,6 +392,87 @@ function openLink(i, j) {
 
 
 
+
+function exportForGithub() {
+  try {
+    save();
+    saveSettings();
+
+    const exportData = {
+      rows: JSON.parse(JSON.stringify(rows)),
+      settings: JSON.parse(JSON.stringify(settings))
+    };
+
+    let overlay = document.getElementById('githubExportOverlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'githubExportOverlay';
+      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+      overlay.innerHTML = `
+        <div style="background:#fff;width:min(820px,96vw);max-height:90vh;overflow:auto;border-radius:16px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+          <div style="font-size:22px;font-weight:800;margin-bottom:8px">Данные для GitHub готовы</div>
+          <div style="font-size:14px;color:#4b5563;margin-bottom:12px">Нажми «Копировать данные», затем вставь их в чат мне. Я сразу сделаю готовый index.html для GitHub со всей твоей таблицей.</div>
+          <textarea id="githubExportText" readonly style="width:100%;height:300px;box-sizing:border-box;border:1px solid #d1d5db;border-radius:10px;padding:12px;font:13px/1.45 monospace;resize:vertical"></textarea>
+          <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap">
+            <button type="button" onclick="copyGithubExport()" style="padding:10px 16px;border:0;border-radius:9px;background:#111827;color:#fff;font-weight:700;cursor:pointer">Копировать данные</button>
+            <button type="button" onclick="document.getElementById('githubExportOverlay').remove()" style="padding:10px 16px;border:1px solid #d1d5db;border-radius:9px;background:#fff;font-weight:700;cursor:pointer">Закрыть</button>
+          </div>
+        </div>`;
+      document.body.appendChild(overlay);
+    }
+
+    document.getElementById('githubExportText').value = JSON.stringify(exportData);
+    document.getElementById('githubExportText').focus();
+    document.getElementById('githubExportText').select();
+  } catch (err) {
+    console.error(err);
+    alert('Ошибка подготовки данных: ' + (err && err.message ? err.message : err));
+  }
+}
+
+function copyGithubExport() {
+  const ta = document.getElementById('githubExportText');
+  if (!ta) return;
+  ta.focus();
+  ta.select();
+
+  const done = () => alert('Скопировано. Теперь просто вставь данные сюда в чат.');
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(ta.value).then(done).catch(() => {
+      try { document.execCommand('copy'); done(); }
+      catch (_) { alert('Нажми Ctrl+C, чтобы скопировать выделенный текст.'); }
+    });
+  } else {
+    try {
+      const ok = document.execCommand('copy');
+      if (ok) done();
+      else alert('Нажми Ctrl+C, чтобы скопировать выделенный текст.');
+    } catch (_) {
+      alert('Нажми Ctrl+C, чтобы скопировать выделенный текст.');
+    }
+  }
+}
+
+function enableGithubReadOnly() {
+  if (!window.GITHUB_READ_ONLY) return;
+
+  document.querySelectorAll('[contenteditable="true"]').forEach(el => {
+    el.setAttribute('contenteditable', 'false');
+  });
+  document.querySelectorAll('input, textarea').forEach(el => {
+    el.setAttribute('readonly', 'readonly');
+    el.setAttribute('tabindex', '-1');
+  });
+  document.querySelectorAll('button').forEach(btn => {
+    const t = (btn.textContent || '').trim().toLowerCase();
+    if (t.includes('удал') || t.includes('добавить строк') ||
+        t.includes('добавить ссыл') || t.includes('очистить') ||
+        t.includes('скачать для github') || t === '×') {
+      btn.style.display = 'none';
+    }
+  });
+}
+
 function escapeHtml(s) {
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
@@ -438,29 +494,18 @@ document.querySelectorAll('.th-input').forEach(el => {
 });
 
 render();
+enableGithubReadOnly();
+</script>
 
-function enableReadOnlyMode() {
-  document.querySelectorAll('[contenteditable="true"]').forEach(el => {
-    el.setAttribute('contenteditable', 'false');
+<script>
+window.addEventListener('load', function(){
+  document.querySelectorAll('[contenteditable="true"]').forEach(el=>el.setAttribute('contenteditable','false'));
+  document.querySelectorAll('input, textarea').forEach(el=>{el.readOnly=true; el.tabIndex=-1;});
+  document.querySelectorAll('button').forEach(btn=>{
+    const t=(btn.textContent||'').trim().toLowerCase();
+    if(t.includes('очистить')||t.includes('подготовить')||t.includes('добавить строк')||t.includes('добавить ссыл')||t.includes('удалить')) btn.style.display='none';
   });
-  document.querySelectorAll('input, textarea').forEach(el => {
-    el.setAttribute('readonly', 'readonly');
-    el.setAttribute('tabindex', '-1');
-  });
-
-  // Remove any remaining editing buttons while keeping "Открыть".
-  document.querySelectorAll('button').forEach(btn => {
-    const t = (btn.textContent || '').trim().toLowerCase();
-    if (t.includes('удал') || t.includes('добавить строк') ||
-        t.includes('добавить ссыл') || t.includes('очистить')) {
-      btn.style.display = 'none';
-    }
-  });
-}
-
-window.addEventListener('DOMContentLoaded', enableReadOnlyMode);
-setTimeout(enableReadOnlyMode, 0);
-
+});
 </script>
 </body>
 </html>
