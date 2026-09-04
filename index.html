@@ -1,511 +1,153 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Расписание — редактор</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Расписание by denis</title>
 <style>
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    font-family: Inter, Arial, sans-serif;
-    background: #f5f6f8;
-    color: #202124;
+    background: #f5f7fb;
+    color: #111827;
+    font-family: Arial, Helvetica, sans-serif;
   }
-  .wrap { width: 100%; max-width: none; margin: 0; padding: 32px 10px; }
-  header {
-    display: flex; justify-content: space-between; align-items: center;
-    gap: 16px; margin-bottom: 22px;
+  .wrap {
+    width: min(1500px, calc(100% - 20px));
+    margin: 16px auto;
   }
-  h1 { margin: 0; font-size: 28px; }
-  .title-input {
-    width: min(520px, 70vw); border: 1px solid transparent; border-radius: 8px;
-    padding: 2px 6px; margin: 0; font: 700 28px/1.2 Inter, Arial, sans-serif;
-    background: transparent; color: inherit; outline: none;
+  h1 {
+    margin: 0 0 12px;
+    font-size: 24px;
   }
-  .title-input:focus { border-color: #d1d5db; background: white; }
-  th { cursor: text; }
-  .th-input {
-    width: 100%; border: 1px solid transparent; border-radius: 7px;
-    padding: 6px 7px; font: 600 13px Inter, Arial, sans-serif;
-    color: #6b7280; background: transparent; outline: none;
-  }
-  .th-input:focus { border-color: #d1d5db; background: white; color: #374151; }
-    button {
-    border: 0; border-radius: 10px; padding: 11px 16px;
-    cursor: pointer; font-size: 14px; font-weight: 600;
-  }
-  .add { background: #111827; color: white; }
-  .clear { background: #e5e7eb; color: #374151; }
   .card {
-    background: white;
-    border: 2px solid #cbd5e1;
-    border-radius: 5px;
-    overflow: hidden;
-    box-shadow: 0 5px 22px rgba(0,0,0,.07);
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    overflow: auto;
+    box-shadow: 0 6px 24px rgba(0,0,0,.05);
   }
-  table { width: 100%; border-collapse: collapse; }
+  table {
+    width: 100%;
+    min-width: 900px;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
   th, td {
-    padding: 13px 14px;
-    border-bottom: 1px solid #d9dee5;
-    border-right: 1px solid #d9dee5;
+    border-right: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 10px 12px;
     text-align: left;
     vertical-align: top;
   }
-  th:last-child, td:last-child { border-right: none; }
-  tbody tr:last-child td { border-bottom: none; }
-  th { background: #fafafa; font-size: 13px; color: #6b7280; }
-  td input, td textarea {
-    width: 100%; border: 1px solid transparent; border-radius: 8px;
-    padding: 9px; font: inherit; background: transparent;
-    outline: none; resize: none; overflow-y: hidden; min-height: 44px;
+  th:last-child, td:last-child { border-right: 0; }
+  tbody tr:last-child td { border-bottom: 0; }
+  th {
+    background: #f9fafb;
+    font-size: 14px;
+    font-weight: 800;
+    position: sticky;
+    top: 0;
+    z-index: 1;
   }
-  td input:focus, td textarea:focus { border-color: #d1d5db; background: #fff; }
-  .url { color: #2563eb; }
-  .links-box { display: flex; flex-direction: column; gap: 8px; min-width: 260px; }
-  .link-line { display: flex; gap: 6px; align-items: center; }
-  .link-line input { flex: 1; min-width: 180px; }
-  .link-open { background: #eef2ff; color: #4338ca; padding: 8px 10px; flex: 0 0 auto; }
-  .link-remove { background: #fee2e2; color: #b91c1c; padding: 8px 10px; flex: 0 0 auto; }
-  .add-link { background: #e5e7eb; color: #374151; padding: 8px 10px; align-self: flex-start; }
-  .actions { white-space: nowrap; width: 1%; min-width: 92px; padding-left: 7px; padding-right: 7px; }
-  .delete { background: #fee2e2; color: #b91c1c; padding: 10px 12px; }
-  .open { background: #eef2ff; color: #4338ca; padding: 12px 18px; margin-right: 8px; font-size: 15px; min-width: 0; }
-  .empty { text-align: center; padding: 45px 20px; color: #9ca3af; }
-@media (max-width: 700px) {
-    .wrap { padding: 20px 6px; }
-    header { align-items: flex-start; flex-direction: column; }
-    .card { overflow-x: auto; }
-    table { min-width: 760px; }
-  }
-
-  .text-editor {
-    width: 100%;
-    min-height: 42px;
-    border: 1px solid transparent;
-    border-radius: 8px;
-    padding: 9px;
-    font: inherit;
-    line-height: 1.45;
-    outline: none;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-  }
-  .text-editor:focus { border-color: #d1d5db; background: #fff; }
-  .mark-green { color: #15803d; font-weight: 700; }
-  .mark-red { color: #dc2626; font-weight: 700; }
-  .mark-purple { color: #7e22ce; font-weight: 700; }
-
-
+  .day { width: 12%; font-weight: 800; }
+  .time { width: 16%; white-space: normal; line-height: 1.45; }
+  .pairs { width: 50%; line-height: 1.5; overflow-wrap: anywhere; }
+  .links { width: 22%; }
   .lesson-type {
-    color: #000000 !important;
-    font-weight: 900 !important;
+    color: #000;
+    font-weight: 900;
   }
-/* Компактная высота строк: без большого пустого пространства снизу */
-  #tableBody tr {
-    height: auto !important;
-    min-height: 0 !important;
+  .link-item {
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #e5e7eb;
   }
-  #tableBody td {
-    height: auto !important;
+  .link-item:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: 0;
   }
-
-  .time-editor {
-    width: 100%;
-    min-height: 24px;
-    padding: 4px 6px;
-    border: 1px solid transparent;
-    border-radius: 5px;
-    outline: none;
-    background: transparent;
-    color: #111827;
-    font: inherit;
-    line-height: 1.45;
-    white-space: pre-wrap;
+  .link-item a {
+    display: inline-block;
+    padding: 7px 11px;
+    border-radius: 8px;
+    background: #111827;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    margin-bottom: 5px;
+  }
+  .link-text {
+    font-size: 12px;
+    color: #6b7280;
     overflow-wrap: anywhere;
   }
-  .time-editor:focus {
-    border-color: #d1d5db;
-    background: #fff;
+  .no-link {
+    font-size: 13px;
+    color: #6b7280;
+    overflow-wrap: anywhere;
   }
-  .time-editor:empty::before {
-    content: attr(data-placeholder);
-    color: #9ca3af;
-    pointer-events: none;
+  @media (max-width: 700px) {
+    .wrap { width: calc(100% - 10px); margin: 8px auto; }
+    h1 { font-size: 20px; margin: 0 4px 8px; }
+    th, td { padding: 8px; }
   }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <div>
-      <input id="pageTitle" class="title-input" value="Моя таблица" aria-label="Название страницы">
-    </div>
-    <div>
-      <button class="clear" onclick="clearAll()">Очистить всё</button>
-      <button class="add" onclick="exportForGithub()">Подготовить для GitHub</button>
-      <button class="add" onclick="addRow()">+ Добавить строку</button>
-    </div>
-  </header>
-
+  <h1>Расписание by denis</h1>
   <div class="card">
     <table>
       <thead>
         <tr>
-          <th style="width:13%"><input class="th-input" data-key="nameHeader" value="Название" aria-label="Название столбца"></th>
-          <th style="width:11%"><input class="th-input" data-key="timeHeader" value="Время" aria-label="Название столбца"></th>
-          <th style="width:52%"><input class="th-input" data-key="textHeader" value="Текст / заметка" aria-label="Название столбца"></th>
-          <th style="width:19%"><input class="th-input" data-key="urlHeader" value="Ссылка" aria-label="Название столбца"></th>
-          <th style="width:5%"><input class="th-input" data-key="actionsHeader" value="Действия" aria-label="Название столбца"></th>
+          <th style="width:12%">День недельки</th>
+          <th style="width:16%">Время</th>
+          <th style="width:50%">Пары</th>
+          <th style="width:22%">Ссылки на пары</th>
         </tr>
       </thead>
-      <tbody id="tableBody"></tbody>
+      <tbody>
+        
+      <tr>
+        <td class="day">Понедельник</td>
+        <td class="time">1. 8.00-9.45<br>    8.50-9.35<br>2. 9.50-10.35<br>    10.40-11.25</td>
+        <td class="pairs">1. 1/15 Англ. язык ( Препод Єршова Ю.А. )  <span class="lesson-type">ПРАКТИКА</span> <br>2. 1/15 Высшая матеша ( Препод  Сікіраш Ю.Є. )  <span class="lesson-type">ЛЕКЦИЯ</span><br>3. -<br>4. -</td>
+        <td class="links"><div class="link-item"><a href="https://meet.google.com/tvg-vetr-xdy" target="_blank" rel="noopener noreferrer">Открыть</a><div class="link-text">https://meet.google.com/tvg-vetr-xdy</div></div><div class="link-item"><a href="https://us04web.zoom.us/j/8944225620?pwd=K3BudEVIZEJXWFBsMGUxWWZYbUpVQT09" target="_blank" rel="noopener noreferrer">Открыть</a><div class="link-text">https://us04web.zoom.us/j/8944225620?pwd=K3BudEVIZEJXWFBsMGUxWWZYbUpVQT09</div></div></td>
+      </tr>
+    
+      <tr>
+        <td class="day">Вторник</td>
+        <td class="time">1. 8.00-9.45<br>    8.50-9.45<br>3. 11.40-12.25<br>    12.30-13.15</td>
+        <td class="pairs">1. 1/15 Англ. язык ( Препод  Єршова Ю.А.) <span class="lesson-type">ПРАКТИКА</span><br>2. -<br>3. 2/15 Вступ до  спеціальності ( Препод Вінковська І.С. ) <span class="lesson-type">ЛАБОРАТОРНАЯ</span> <br>4. -</td>
+        <td class="links"><div class="link-item"><a href="https://meet.google.com/tvg-vetr-xdy" target="_blank" rel="noopener noreferrer">Открыть</a><div class="link-text">https://meet.google.com/tvg-vetr-xdy</div></div><div class="link-item"><a href="https://meet.google.com/yeh-bezk-gbi" target="_blank" rel="noopener noreferrer">Открыть</a><div class="link-text">https://meet.google.com/yeh-bezk-gbi</div></div></td>
+      </tr>
+    
+      <tr>
+        <td class="day">Среда</td>
+        <td class="time">1. 8.00-9.45<br>    8.50-9.35<br>2. 9.50-10.35<br>    10.40-11.25<br>3. 11.40-12.25<br>    12.30-13.15<br>4. 13.30-14.15<br>    14.20-15.05</td>
+        <td class="pairs">1. 1/15 Алгоритмізація та програмування ( Препод Головачова О.В. ) <span class="lesson-type">ЛЕКЦИЯ</span> <br>2. 1/15 Вступ до спеціальності ( Препод Тимошенко Л.М. ) <span class="lesson-type">ЛЕКЦИЯ</span><br>3. 1/15 Высшая матеша ( Препод Сікіраш Ю.Є. ) <span class="lesson-type">ПРАКТИКА</span> <br>4. 2/15 Історія України та української культури ( Препод Мельник О.В. ) <span class="lesson-type">ПРАКТИКА</span></td>
+        <td class="links"><div class="link-item muted"><span class="no-link">3780800730 // 4T6Tq2</span></div><div class="link-item"><a href="https://meet.google.com/kwe-hzwh-wdg" target="_blank" rel="noopener noreferrer">Открыть</a><div class="link-text">https://meet.google.com/kwe-hzwh-wdg</div></div><div class="link-item muted"><span class="no-link">https://us04web.zoom.us/j/8944225620?pwd=K3 BudEVIZEJXWFBsMGUxWWZYbUpVQT09</span></div><div class="link-item muted"><span class="no-link">Нема ссылки</span></div></td>
+      </tr>
+    
+      <tr>
+        <td class="day">Четверг</td>
+        <td class="time">???</td>
+        <td class="pairs">У нас пар нет по физре, непонятно по какой ссылке там заходить. Как проблема решиться, либо же добавиться в этот день что то кроме физры - я обновлю инфу ;)</td>
+        <td class="links"><div class="link-item muted"><span class="no-link">???</span></div></td>
+      </tr>
+    
+      <tr>
+        <td class="day">Пятница</td>
+        <td class="time">2. 9.50-10.35<br>    10.40-11.25<br>4. 13.30-14.15<br>    14.20-15.05</td>
+        <td class="pairs">1. -<br>2. 3/15 Основи нормативно-правового заб. кібербезпеки та захисту інформації ( Препод Білоусов О.С. ) <span class="lesson-type">ПРАКТИКА</span> <br>3. -<br>4. 1/15, 2/14 Алгоритмізація та програмування ( Препод Головачова О.В. ) <span class="lesson-type">ПРАКТИКА</span> / <span class="lesson-type">ЛАБОРАТОРНАЯ</span><br>-note ( 1.15 у нас практика, а 2.15 у нас лабораторная )</td>
+        <td class="links"><div class="link-item"><a href="https://meet.google.com/uay-ufqt-xpr" target="_blank" rel="noopener noreferrer">Открыть</a><div class="link-text">https://meet.google.com/uay-ufqt-xpr</div></div><div class="link-item muted"><span class="no-link">3780800730 // 4T6Tq2</span></div></td>
+      </tr>
+    
+      </tbody>
     </table>
-    <div id="empty" class="empty">Пока нет записей. Нажми «+ Добавить строку».</div>
   </div>
 </div>
-
-<script>
-window.EMBEDDED_ROWS = [{"name": "Понедельник", "text": "1. 1/15 Англ. язык ( Препод Єршова Ю.А. )  ПРАКТИКА \n2. 1/15 Высшая матеша ( Препод  Сікіраш Ю.Є. )  ЛЕКЦИЯ\n3. -\n4. -", "url": "https://meet.google.com/tvg-vetr-xdy", "urls": ["https://meet.google.com/tvg-vetr-xdy", "https://us04web.zoom.us/j/8944225620?pwd=K3BudEVIZEJXWFBsMGUxWWZYbUpVQT09"], "time": "1. 8.00-9.45\n    8.50-9.35\n2. 9.50-10.35\n    10.40-11.25"}, {"name": "Вторник ", "text": "1. 1/15 Англ. язык ( Препод  Єршова Ю.А.) ПРАКТИКА\n2. -\n3. 2/15 Вступ до  спеціальності ( Препод Вінковська І.С. ) ЛАБОРАТОРНАЯ \n4. -", "url": "", "urls": ["https://meet.google.com/tvg-vetr-xdy", "https://meet.google.com/yeh-bezk-gbi"], "time": "1. 8.00-9.45\n    8.50-9.45\n3. 11.40-12.25\n    12.30-13.15"}, {"name": "Среда", "text": "1. 1/15 Алгоритмізація та програмування ( Препод Головачова О.В. ) ЛЕКЦИЯ \n2. 1/15 Вступ до спеціальності ( Препод Тимошенко Л.М. ) ЛЕКЦИЯ\n3. 1/15 Высшая матеша ( Препод Сікіраш Ю.Є. ) ПРАКТИКА \n4. 2/15 Історія України та української культури ( Препод Мельник О.В. ) ПРАКТИКА", "urls": ["3780800730 // 4T6Tq2", "https://meet.google.com/kwe-hzwh-wdg", "https://us04web.zoom.us/j/8944225620?pwd=K3 BudEVIZEJXWFBsMGUxWWZYbUpVQT09", "Нема ссылки"], "time": "1. 8.00-9.45\n    8.50-9.35\n2. 9.50-10.35\n    10.40-11.25\n3. 11.40-12.25\n    12.30-13.15\n4. 13.30-14.15\n    14.20-15.05"}, {"name": "Четверг", "text": "У нас пар нет по физре, непонятно по какой ссылке там заходить. Как проблема решиться, либо же добавиться в этот день что то кроме физры - я обновлю инфу ;)", "urls": ["???"], "time": "???"}, {"name": "Пятница", "text": "1. -\n2. 3/15 Основи нормативно-правового заб. кібербезпеки та захисту інформації ( Препод Білоусов О.С. ) ПРАКТИКА \n3. -\n4. 1/15, 2/14 Алгоритмізація та програмування ( Препод Головачова О.В. ) ПРАКТИКА / ЛАБОРАТОРНАЯ\n-note ( 1.15 у нас практика, а 2.15 у нас лабораторная )", "urls": ["https://meet.google.com/uay-ufqt-xpr", "3780800730 // 4T6Tq2"], "time": "2. 9.50-10.35\n    10.40-11.25\n4. 13.30-14.15\n    14.20-15.05"}];
-window.EMBEDDED_SETTINGS = {"pageTitle": "Расписание by denis", "nameHeader": "День недельки ", "textHeader": "Пары ", "urlHeader": "Ссылки на пары", "actionsHeader": "", "timeHeader": "Время "};
-</script>
-<script>
-const KEY = 'simple-links-table-v1';
-const SETTINGS_KEY = 'simple-links-table-settings-v1';
-let rows = Array.isArray(window.EMBEDDED_ROWS) ? window.EMBEDDED_ROWS : JSON.parse(localStorage.getItem(KEY) || 'null');
-if (!Array.isArray(rows) || rows.length === 0) {
-  rows = [
-    {name:'', time:'1 пара\n8:00 — 8:45\n8:50 — 9:35', text:'', urls:['']},
-    {name:'', time:'2 пара\n9:50 — 10:35\n10:40 — 11:25', text:'', urls:['']},
-    {name:'', time:'3 пара\n11:40 — 12:25\n12:30 — 13:15', text:'', urls:['']},
-    {name:'', time:'4 пара\n13:30 — 14:15\n14:20 — 15:05', text:'', urls:['']}
-  ];
-  localStorage.setItem(KEY, JSON.stringify(rows));
-}
-rows = rows.map(r => ({...r, urls: Array.isArray(r.urls) ? r.urls : (r.url ? [r.url] : [''])}));
-let settings = (window.EMBEDDED_SETTINGS && typeof window.EMBEDDED_SETTINGS === 'object') ? window.EMBEDDED_SETTINGS : JSON.parse(localStorage.getItem(SETTINGS_KEY) || 'null') || {
-  pageTitle: 'Моя таблица', nameHeader: 'Название', textHeader: 'Текст / заметка',
-    timeHeader: 'Время', urlHeader: 'Ссылка', actionsHeader: 'Действия'
-};
-
-
-const PAIR_TIMES = [
-  '1 пара\n8:00 — 8:45\n8:50 — 9:35',
-  '2 пара\n9:50 — 10:35\n10:40 — 11:25',
-  '3 пара\n11:40 — 12:25\n12:30 — 13:15',
-  '4 пара\n13:30 — 14:15\n14:20 — 15:05'
-];
-
-// Старые сохранённые строки раньше не имели поля "Время".
-// Заполняем его автоматически, чтобы время сразу было видно.
-let timeMigrated = false;
-rows.forEach((row, index) => {
-  if (row.time === undefined || row.time === null || row.time === '') {
-    row.time = PAIR_TIMES[index] || '';
-    timeMigrated = true;
-  }
-});
-if (timeMigrated) save();
-
-function save() {
-  localStorage.setItem(KEY, JSON.stringify(rows));
-}
-
-function saveSettings() {
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-}
-
-function render() {
-  document.title = settings.pageTitle || 'Моя таблица';
-  const pageTitle = document.getElementById('pageTitle');
-  if (pageTitle) pageTitle.value = settings.pageTitle;
-  document.querySelectorAll('.th-input').forEach(el => { el.value = settings[el.dataset.key] || ''; });
-  const body = document.getElementById('tableBody');
-  const empty = document.getElementById('empty');
-  body.innerHTML = '';
-  empty.style.display = rows.length ? 'none' : 'block';
-
-  rows.forEach((row, i) => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td><input value="${escapeAttr(row.name)}" placeholder="Название"></td>
-      <td><div class="time-editor" contenteditable="true" data-placeholder="8:00 — 9:35">${escapeHtml(row.time || "")}</div></td>
-      <td><div class="text-editor" contenteditable="true" data-placeholder="Введите текст...">${highlightStatusText(row.text)}</div></td>
-      <td>
-        <div class="links-box">
-          ${row.urls.map((url, j) => `
-            <div class="link-line">
-              <input class="url" value="${escapeAttr(url)}" placeholder="https://example.com" oninput="updateLink(${i}, ${j}, this.value)">
-              <button class="link-open" onclick="openLink(${i}, ${j})">Открыть</button>
-              <button class="link-remove" onclick="removeLink(${i}, ${j})">×</button>
-            </div>`).join('')}
-          <button class="add-link" onclick="addLink(${i})">+ Добавить ссылку</button>
-        </div>
-      </td>
-      <td class="actions">
-        <button class="delete" onclick="deleteRow(${i})">Удалить</button>
-      </td>`;
-    const nameInput = tr.querySelector('td:nth-child(1) input');
-    const timeInput = tr.querySelector('.time-editor');
-    const textEditor = tr.querySelector('.text-editor');
-    nameInput.oninput = e => { rows[i].name = e.target.value; save(); };
-    if (timeInput) {
-      timeInput.oninput = e => {
-        rows[i].time = e.currentTarget.innerText.replace(/\r/g, '');
-        save();
-      };
-    }
-
-    textEditor.onfocus = e => {
-      e.currentTarget.textContent = rows[i].text || '';
-    };
-    textEditor.oninput = e => {
-      const el = e.currentTarget;
-      const caret = getCaretOffset(el);
-      rows[i].text = el.innerText.replace(/\r/g, '');
-      save();
-      el.innerHTML = highlightStatusText(rows[i].text);
-      setCaretOffset(el, caret);
-    };
-    textEditor.onblur = e => {
-      rows[i].text = e.currentTarget.innerText.replace(/\r/g, '');
-      save();
-      e.currentTarget.innerHTML = highlightStatusText(rows[i].text);
-    };
-    body.appendChild(tr);
-  });
-}
-
-
-
-
-function getCaretOffset(el) {
-  const sel = window.getSelection();
-  if (!sel || !sel.rangeCount) return 0;
-  const range = sel.getRangeAt(0).cloneRange();
-  range.selectNodeContents(el);
-  range.setEnd(sel.anchorNode, sel.anchorOffset);
-  return range.toString().length;
-}
-
-function setCaretOffset(el, offset) {
-  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-  let count = 0, node;
-  while ((node = walker.nextNode())) {
-    const next = count + node.nodeValue.length;
-    if (offset <= next) {
-      const range = document.createRange();
-      range.setStart(node, Math.max(0, offset - count));
-      range.collapse(true);
-      const sel = window.getSelection();
-      sel.removeAllRanges();
-      sel.addRange(range);
-      return;
-    }
-    count = next;
-  }
-}
-
-function highlightStatusText(text) {
-  let safe = escapeHtml(text || '');
-  // Красим от 1/15, 2/15 или 3/15 до первой открывающей скобки.
-  // Сама скобка и всё после неё остаются обычного цвета.
-  safe = safe.replace(/(1\/15[^(]*)(?=\(|$)/g, '<span class="mark-green">$1</span>');
-  safe = safe.replace(/(2\/15[^(]*)(?=\(|$)/g, '<span class="mark-red">$1</span>');
-  safe = safe.replace(/(3\/15[^(]*)(?=\(|$)/g, '<span class="mark-purple">$1</span>');
-  safe = safe.replace(/\b(ПРАКТИКА|ЛЕКЦИЯ|ЛАБОРАТОРНАЯ|ЛОБОРАТОРНАЯ)\b/g, '<span class="lesson-type">$1</span>');
-  return safe;
-}
-
-function autoGrow(el) {
-  el.style.height = 'auto';
-  el.style.overflow = 'hidden';
-  el.style.height = (el.scrollHeight + 2) + 'px';
-}
-
-function growAllTextareas() {
-  document.querySelectorAll('textarea').forEach(autoGrow);
-}
-
-function addRow() {
-  rows.push({name:'', time: PAIR_TIMES[rows.length] || '', text:'', urls:['']});
-  save();
-  render();
-  const inputs = document.querySelectorAll('#tableBody tr:last-child input');
-  if (inputs[0]) inputs[0].focus();
-}
-
-function deleteRow(i) {
-  rows.splice(i, 1);
-  save();
-  render();
-}
-
-function clearAll() {
-  if (!rows.length || confirm('Удалить все записи?')) {
-    rows = [];
-    save();
-    render();
-  }
-}
-
-function updateLink(i, j, value) {
-  rows[i].urls[j] = value;
-  save();
-}
-
-function addLink(i) {
-  rows[i].urls.push('');
-  save();
-  render();
-  const lines = document.querySelectorAll(`#tableBody tr:nth-child(${i + 1}) .link-line input`);
-  if (lines.length) lines[lines.length - 1].focus();
-}
-
-function removeLink(i, j) {
-  if (rows[i].urls.length === 1) rows[i].urls[0] = '';
-  else rows[i].urls.splice(j, 1);
-  save();
-  render();
-}
-
-
-function extractCleanUrl(value) {
-  const text = String(value || '').trim();
-
-  // First try to find a full http/https URL anywhere in the text.
-  const full = text.match(/https?:\/\/[^\s<>"']+/i);
-  if (full) return full[0].replace(/[),.;]+$/, '');
-
-  // Otherwise try a domain-like address such as meet.google.com/...
-  const domain = text.match(/\b(?:www\.)?[a-z0-9.-]+\.[a-z]{2,}(?:\/[^\s<>"']*)?/i);
-  if (domain) return 'https://' + domain[0].replace(/[),.;]+$/, '');
-
-  return '';
-}
-
-function openLink(i, j) {
-  const url = extractCleanUrl(rows[i].urls[j] || '');
-  if (!url) return alert('Здесь пока нет корректной ссылки.');
-  window.open(url, '_blank', 'noopener,noreferrer');
-}
-
-
-
-
-function exportForGithub() {
-  try {
-    save();
-    saveSettings();
-
-    const exportData = {
-      rows: JSON.parse(JSON.stringify(rows)),
-      settings: JSON.parse(JSON.stringify(settings))
-    };
-
-    let overlay = document.getElementById('githubExportOverlay');
-    if (!overlay) {
-      overlay = document.createElement('div');
-      overlay.id = 'githubExportOverlay';
-      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
-      overlay.innerHTML = `
-        <div style="background:#fff;width:min(820px,96vw);max-height:90vh;overflow:auto;border-radius:16px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.3)">
-          <div style="font-size:22px;font-weight:800;margin-bottom:8px">Данные для GitHub готовы</div>
-          <div style="font-size:14px;color:#4b5563;margin-bottom:12px">Нажми «Копировать данные», затем вставь их в чат мне. Я сразу сделаю готовый index.html для GitHub со всей твоей таблицей.</div>
-          <textarea id="githubExportText" readonly style="width:100%;height:300px;box-sizing:border-box;border:1px solid #d1d5db;border-radius:10px;padding:12px;font:13px/1.45 monospace;resize:vertical"></textarea>
-          <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap">
-            <button type="button" onclick="copyGithubExport()" style="padding:10px 16px;border:0;border-radius:9px;background:#111827;color:#fff;font-weight:700;cursor:pointer">Копировать данные</button>
-            <button type="button" onclick="document.getElementById('githubExportOverlay').remove()" style="padding:10px 16px;border:1px solid #d1d5db;border-radius:9px;background:#fff;font-weight:700;cursor:pointer">Закрыть</button>
-          </div>
-        </div>`;
-      document.body.appendChild(overlay);
-    }
-
-    document.getElementById('githubExportText').value = JSON.stringify(exportData);
-    document.getElementById('githubExportText').focus();
-    document.getElementById('githubExportText').select();
-  } catch (err) {
-    console.error(err);
-    alert('Ошибка подготовки данных: ' + (err && err.message ? err.message : err));
-  }
-}
-
-function copyGithubExport() {
-  const ta = document.getElementById('githubExportText');
-  if (!ta) return;
-  ta.focus();
-  ta.select();
-
-  const done = () => alert('Скопировано. Теперь просто вставь данные сюда в чат.');
-  if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(ta.value).then(done).catch(() => {
-      try { document.execCommand('copy'); done(); }
-      catch (_) { alert('Нажми Ctrl+C, чтобы скопировать выделенный текст.'); }
-    });
-  } else {
-    try {
-      const ok = document.execCommand('copy');
-      if (ok) done();
-      else alert('Нажми Ctrl+C, чтобы скопировать выделенный текст.');
-    } catch (_) {
-      alert('Нажми Ctrl+C, чтобы скопировать выделенный текст.');
-    }
-  }
-}
-
-function enableGithubReadOnly() {
-  if (!window.GITHUB_READ_ONLY) return;
-
-  document.querySelectorAll('[contenteditable="true"]').forEach(el => {
-    el.setAttribute('contenteditable', 'false');
-  });
-  document.querySelectorAll('input, textarea').forEach(el => {
-    el.setAttribute('readonly', 'readonly');
-    el.setAttribute('tabindex', '-1');
-  });
-  document.querySelectorAll('button').forEach(btn => {
-    const t = (btn.textContent || '').trim().toLowerCase();
-    if (t.includes('удал') || t.includes('добавить строк') ||
-        t.includes('добавить ссыл') || t.includes('очистить') ||
-        t.includes('скачать для github') || t === '×') {
-      btn.style.display = 'none';
-    }
-  });
-}
-
-function escapeHtml(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-function escapeAttr(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-document.getElementById('pageTitle').addEventListener('input', e => {
-  settings.pageTitle = e.target.value;
-  saveSettings();
-  document.title = settings.pageTitle || 'Моя таблица';
-});
-
-document.querySelectorAll('.th-input').forEach(el => {
-  el.addEventListener('input', e => {
-    settings[e.target.dataset.key] = e.target.value;
-    saveSettings();
-  });
-});
-
-render();
-enableGithubReadOnly();
-</script>
-
-<script>
-window.addEventListener('load', function(){
-  document.querySelectorAll('[contenteditable="true"]').forEach(el=>el.setAttribute('contenteditable','false'));
-  document.querySelectorAll('input, textarea').forEach(el=>{el.readOnly=true; el.tabIndex=-1;});
-  document.querySelectorAll('button').forEach(btn=>{
-    const t=(btn.textContent||'').trim().toLowerCase();
-    if(t.includes('очистить')||t.includes('подготовить')||t.includes('добавить строк')||t.includes('добавить ссыл')||t.includes('удалить')) btn.style.display='none';
-  });
-});
-</script>
 </body>
 </html>
